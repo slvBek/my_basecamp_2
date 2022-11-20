@@ -1,0 +1,121 @@
+/* 
+* {
+	box-sizing: border-box;
+} */
+
+
+body {
+	display: absolute;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	font-family: 'Montserrat', sans-serif;
+	height: 100vh;
+	
+}
+
+h1 {
+	font-weight: bold;
+	margin: 0;
+}
+
+h2 {
+	text-align: center;
+}
+
+
+
+span {
+	font-size: 12px;
+}
+
+a {
+	color: #333;
+	font-size: 20px;
+	text-decoration: none;
+	margin: 15px 0;
+}
+
+button {
+	position:relative;
+	font-size: 12px;
+	font-weight: bold;
+	padding: 12px 45px;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	transition: transform 80ms ease-in;
+}
+
+
+.ghost {
+	border-radius: 20px;
+	
+	color: #FFFFFF;
+	font-size: 12px;
+	font-weight: bold;
+	padding: 12px 45px;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	transition: transform 80ms ease-in;
+}
+
+button:active {
+	transform: scale(0.95);
+}
+.ghost:active {
+	transform: scale(0.95);
+}
+button:focus {
+	outline: none;
+}
+.ghost:focus {
+	outline: none;
+}
+button.ghost {
+	background-color: transparent;
+	border-color: #FFFFFF;
+}
+.ghost.ghost {
+	background-color: transparent;
+	border-color: #FFFFFF;
+}
+
+
+
+html {
+	font-family: Helvetica, Arial;
+	
+  }
+  
+
+  
+svg {
+	position: absolute;
+	top: 35%;
+	left: 50%;
+	transform: translate(-50%)  
+  }
+  
+text {
+	font-size: 4rem;
+	stroke: #D93240;
+	stroke-width: 2px;
+	stroke-dasharray: 1000;
+	stroke-dashoffset: 1000;
+	fill: transparent;
+	animation: dash 5s ease-out alternate infinite;
+	
+  }
+  
+  @keyframes dash {
+	from {
+	  stroke-dashoffset: 1000;
+	}
+	to {
+	  stroke-dashoffset: 0;
+	}
+  }
+
+
+
+  

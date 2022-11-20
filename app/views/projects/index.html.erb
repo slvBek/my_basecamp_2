@@ -1,0 +1,715 @@
+<h1>Projects</h1>
+<div class="container">
+<% @projects.each do |project| %>
+  <% if project.user == current_user %>
+  <div class="card">  
+    <div class="box">
+      <div class="content">
+        <h3><div id="projects"></h3>   
+            <%= render project %>
+              <p>
+                <%= link_to "Show this project", project %>
+              </p>
+      </div>
+    </div>
+  </div>
+  <% end %>
+ <% end %>
+</div>
+
+<body>
+  <nav class="navbar">
+    <span class="navbar-toggle" id="js-navbar-toggle">
+      <i class="fas fa-bars"></i>
+    </span>   
+    <% if user_signed_in? %> 
+      <a class="logo"><%= current_user.role %></a>
+    <ul class="main-nav" id="js-menu">
+      <% if current_user.admin? %>
+        <div class="admin"> 
+          <li>
+            <a class="nav-links"><%= link_to 'Admin panel',rails_admin_path %></a>
+          </li>      
+        </div>
+      <% end %>
+      <li>
+        <a class="nav-links"><%= link_to "New Project", new_project_path, class:"new" %></a>
+      </li>
+      <li class="dropdown">
+          <a class="dropdown-toggle nav-links" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+            <%= current_user.email %>
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+          <li><%= link_to 'Account Settings', edit_user_registration_path, class:"dropdown-item" %></li>
+          <div class="out">
+            <li><%= button_to 'Log out', destroy_user_session_path, method: :delete, class:"dropdown-item"%></li>
+          </div>
+          </ul>
+      </li> 
+        </ul>
+          </nav>
+</body>
+      </div>  
+      
+    <% else %>
+
+    <svg width="800" height="100"><text x="0" y="50">Welcome to My Basecamp!</text></svg>
+    <div class="box">
+      <%= link_to 'Log in', new_user_session_path, class:"btn btn-primary " %>
+    </div>
+    <div class="sign">
+      <%= link_to 'Sign up', new_user_registration_path, class:"btn btn-primary" %>
+    </div>
+    <% end %>
+    
+
+<script>  
+  let mainNav = document.getElementById("js-menu");
+  let navBarToggle = document.getElementById("js-navbar-toggle");
+
+  navBarToggle.addEventListener("click", function() {
+    mainNav.classList.toggle("active");
+  });
+
+</script>
+
+
+<style>
+
+
+  [type=submit]:not(:disabled), button:not(:disabled) {
+    font-size: 18px;
+      cursor: pointer;
+  }
+
+  .dropdown-menu[data-bs-popper] {
+      top: 100%;
+      left: 55px;
+      margin-top: 1.125rem;
+  }
+
+
+    * {
+      box-sizing: border-box;
+      padding: 0;
+      margin: 0;
+    }
+
+    body {
+      font-family: "Josefin Sans", sans-serif;
+    }
+
+    .navbar {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      font-size: 28px;
+      background-image: linear-gradient(260deg, #2376ae 0%, #c16ecf 100%);
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      padding-bottom: 10px;
+    }
+
+    .main-nav {
+      list-style-type: none;
+      display: none;
+    }
+
+    .nav-links,
+    .logo {
+      text-decoration: none;
+      
+    }
+
+    .main-nav li {
+      text-align: center;
+      margin: 15px auto;
+    }
+
+    .logo {
+      display: inline-block;
+      font-size: 22px;
+      margin-top: 10px;
+      margin-left: 20px;
+    }
+
+    .navbar-toggle {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      cursor: pointer;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 24px;
+    }
+
+    .active {
+      display: block;
+    }
+
+    @media screen and (min-width: 768px) {
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        padding-bottom: 0;
+        height: 70px;
+        align-items: center;
+      }
+
+      .main-nav {
+        display: flex;
+        margin-right: 30px;
+        flex-direction: row;
+        justify-content: flex-end;
+      }
+
+      .main-nav li {
+        margin: 0;
+      }
+
+      .nav-links {
+        margin-left: 40px;
+      }
+
+      .logo {
+        margin-top: 5px;
+      }
+
+      .navbar-toggle {
+        display: none;
+      }
+
+      .logo:hover,
+      .nav-links:hover {
+        color: rgba(255, 255, 255, 1);
+      }
+    }
+
+</style>
+
+
+
+<canvas class="orb-canvas"></canvas>
+
+<div class="overlay">
+  <div class="overlay__inner">
+      <div class="overlay__btns">  
+      </button>
+      <button class="overlay__btn overlay__btn--colors">
+        <span class="overlay__btn-emoji">🎨</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<script type="module">
+
+import * as PIXI from "https://cdn.skypack.dev/pixi.js@5.x";
+import { KawaseBlurFilter } from "https://cdn.skypack.dev/@pixi/filter-kawase-blur@3.2.0";
+import SimplexNoise from "https://cdn.skypack.dev/simplex-noise@3.0.0";
+import hsl from "https://cdn.skypack.dev/hsl-to-hex";
+import debounce from "https://cdn.skypack.dev/debounce";
+
+  function random(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+  function map(n, start1, end1, start2, end2) {
+    return ((n - start1) / (end1 - start1)) * (end2 - start2) + start2;
+  }
+
+  const simplex = new SimplexNoise();
+
+  class ColorPalette {
+    constructor() {
+      this.setColors();
+      this.setCustomProperties();
+    }
+
+    setColors() {
+      this.hue = ~~random(220, 360);
+      this.complimentaryHue1 = this.hue + 30;
+      this.complimentaryHue2 = this.hue + 60;
+      this.saturation = 95;
+      this.lightness = 50;
+
+      this.baseColor = hsl(this.hue, this.saturation, this.lightness);
+      this.complimentaryColor1 = hsl(
+        this.complimentaryHue1,
+        this.saturation,
+        this.lightness
+      );
+      this.complimentaryColor2 = hsl(
+        this.complimentaryHue2,
+        this.saturation,
+        this.lightness
+      );
+
+      this.colorChoices = [
+        this.baseColor,
+        this.complimentaryColor1,
+        this.complimentaryColor2
+      ];
+    }
+
+    randomColor() {
+      return this.colorChoices[~~random(0, this.colorChoices.length)].replace(
+        "#",
+        "0x"
+      );
+    }
+
+    setCustomProperties() {
+      document.documentElement.style.setProperty("--hue", this.hue);
+      document.documentElement.style.setProperty(
+        "--hue-complimentary1",
+        this.complimentaryHue1
+      );
+      document.documentElement.style.setProperty(
+        "--hue-complimentary2",
+        this.complimentaryHue2
+      );
+    }
+  }
+
+  class Orb {
+    constructor(fill = 0x000000) {
+      this.bounds = this.setBounds();
+      this.x = random(this.bounds["x"].min, this.bounds["x"].max);
+      this.y = random(this.bounds["y"].min, this.bounds["y"].max);
+
+      this.scale = 1;
+
+      this.fill = fill;
+
+      this.radius = random(window.innerHeight / 6, window.innerHeight / 3);
+
+      this.xOff = random(0, 1000);
+      this.yOff = random(0, 1000);
+      this.inc = 0.002;
+
+      this.graphics = new PIXI.Graphics();
+      this.graphics.alpha = 0.825;
+
+      window.addEventListener(
+        "resize",
+        debounce(() => {
+          this.bounds = this.setBounds();
+        }, 250)
+      );
+    }
+
+    setBounds() {
+      const maxDist =
+        window.innerWidth < 1000 ? window.innerWidth / 3 : window.innerWidth / 5;
+      const originX = window.innerWidth / 1.25;
+      const originY =
+        window.innerWidth < 1000
+          ? window.innerHeight
+          : window.innerHeight / 1.375;
+
+      return {
+        x: {
+          min: originX - maxDist,
+          max: originX + maxDist
+        },
+        y: {
+          min: originY - maxDist,
+          max: originY + maxDist
+        }
+      };
+    }
+
+    update() {
+      const xNoise = simplex.noise2D(this.xOff, this.xOff);
+      const yNoise = simplex.noise2D(this.yOff, this.yOff);
+      const scaleNoise = simplex.noise2D(this.xOff, this.yOff);
+
+      this.x = map(xNoise, -1, 1, this.bounds["x"].min, this.bounds["x"].max);
+      this.y = map(yNoise, -1, 1, this.bounds["y"].min, this.bounds["y"].max);
+      this.scale = map(scaleNoise, -1, 1, 0.5, 1);
+
+      this.xOff += this.inc;
+      this.yOff += this.inc;
+    }
+
+    render() {
+      this.graphics.x = this.x;
+      this.graphics.y = this.y;
+      this.graphics.scale.set(this.scale);
+
+      this.graphics.clear();
+
+      this.graphics.beginFill(this.fill);
+      this.graphics.drawCircle(0, 0, this.radius);
+      this.graphics.endFill();
+    }
+  }
+
+  const app = new PIXI.Application({
+    view: document.querySelector(".orb-canvas"),
+    resizeTo: window,
+    transparent: true
+  });
+
+  const colorPalette = new ColorPalette();
+
+  app.stage.filters = [new KawaseBlurFilter(30, 10, true)];
+
+  const orbs = [];
+
+  for (let i = 0; i < 10; i++) {
+    const orb = new Orb(colorPalette.randomColor());
+
+    app.stage.addChild(orb.graphics);
+
+    orbs.push(orb);
+  }
+
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    app.ticker.add(() => {
+      orbs.forEach((orb) => {
+        orb.update();
+        orb.render();
+      });
+    });
+  } else {
+    orbs.forEach((orb) => {
+      orb.update();
+      orb.render();
+    });
+  }
+
+  document
+    .querySelector(".overlay__btn--colors")
+    .addEventListener("click", () => {
+      colorPalette.setColors();
+      colorPalette.setCustomProperties();
+
+      orbs.forEach((orb) => {
+        orb.fill = colorPalette.randomColor();
+      });
+    });
+
+
+</script>
+
+
+
+<style>
+  h1 {
+    z-index: 1;
+    margin: 25px;
+    margin-top: 70px;
+  }
+
+  :root {
+    --dark-color: hsl(var(--hue), 100%, 9%);
+    --light-color: hsl(var(--hue), 95%, 98%);
+    --base: hsl(var(--hue), 95%, 50%);
+    --complimentary1: hsl(var(--hue-complimentary1), 95%, 50%);
+    --complimentary2: hsl(var(--hue-complimentary2), 95%, 50%);
+
+    --font-family: "Poppins", system-ui;
+
+    --bg-gradient: linear-gradient(
+      to bottom,
+      hsl(var(--hue), 95%, 99%),
+      hsl(var(--hue), 95%, 84%)
+    );
+  }
+
+
+
+
+  body {
+    
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 2rem;
+    font-family: var(--font-family);
+    color: var(--dark-color);
+    background: var(--bg-gradient);
+  }
+
+  .orb-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .overlay {
+    bottom: 140px;
+    position: absolute;
+    z-index: auto;
+    width: 100%;
+    max-width: 1140px;
+    max-height: 640px;
+    padding: 17rem 45rem;
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.375);
+    box-shadow: 0 0.75rem 2rem 0 rgba(0, 0, 0, 0.1);
+    border-radius: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.125);
+  }
+
+  .overlay__inner {
+    max-width: 36rem;
+  }
+
+
+  .overlay__btns {
+    width: 100%;
+    max-width: 30rem;
+    display: flex;
+  }
+
+  .overlay__btn {
+    height: 1px;
+    width: 1px;
+    bottom: 268px;
+    left: 615px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    font-weight: 600;
+    color: var(--light-color);
+    background: var(--dark-color);
+    border: none;
+    border-radius: 100rem;
+    transition: transform 150ms ease;
+    outline-color: hsl(var(--hue), 95%, 50%);
+  }
+
+  .overlay__btn:hover {
+    transform: scale(1.05);
+    cursor: pointer;
+  }
+
+  .overlay__btn--transparent {
+    background: transparent;
+    color: var(--dark-color);
+    border: 2px solid var(--dark-color);
+    border-width: 2px;
+    margin-right: 0.75rem;
+  }
+
+  .overlay__btn-emoji {
+    margin-left: 0.375rem;
+  }
+
+  @media (prefers-contrast: high) {
+    .orb-canvas {
+      display: none;
+    }
+  }
+
+  @media only screen and (max-width: 1140px) {
+    .overlay {
+      padding: 8rem 4rem;
+    }
+  }
+
+  @media only screen and (max-width: 840px) {
+    body {
+      padding: 1.5rem;
+    }
+
+    .overlay {
+      padding: 4rem;
+      height: auto;
+    }
+
+    .overlay__title {
+      font-size: 1.25rem;
+      line-height: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .overlay__description {
+      font-size: 0.875rem;
+      line-height: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+  }
+
+  @media only screen and (max-width: 600px) {
+    .overlay {
+      padding: 1.5rem;
+    }
+
+    .overlay__btns {
+      flex-wrap: wrap;
+    }
+
+    .overlay__btn {
+      width: 100%;
+      font-size: 0.75rem;
+      margin-right: 0;
+    }
+
+    .overlay__btn:first-child {
+      margin-bottom: 1rem;
+    }
+  }
+
+  }
+
+
+</style>
+
+
+
+<style>
+
+  @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700;800&display=swap");
+
+  body .container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: 40px 0;
+  }
+
+  body .container .card {
+    bottom: 48px;
+    z-index: 1;
+    position: relative;
+    min-width: 320px;
+    height: 440px;
+    box-shadow: inset 5px 5px 5px rgba(0, 0, 0, 0.2),
+      inset -5px -5px 15px rgba(255, 255, 255, 0.1),
+      5px 5px 15px rgba(0, 0, 0, 0.3), -5px -5px 15px rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    margin: 30px;
+    transition: 0.5s;
+  }
+
+  body .container .card:nth-child(1) .box .content a {
+    background: #2196f3;
+  }
+
+  body .container .card:nth-child(2) .box .content a {
+    background: #e91e63;
+  }
+
+  body .container .card:nth-child(3) .box .content a {
+    background: #23c186;
+  }
+
+  body .container .card:nth-child(4) .box .content a {
+    background: #2196f3;
+  }
+
+  body .container .card:nth-child(5) .box .content a {
+    background: #e91e63;
+  }
+
+  body .container .card:nth-child(6) .box .content a {
+    background: #23c186;
+  }
+
+  body .container .card .box {
+    z-index: 1;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    background: #2a2b2f;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    transition: 0.5s;
+  }
+
+  body .container .card .box:hover {
+    transform: translateY(-50px);
+  }
+
+  body .container .card .box:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  body .container .card .box .content {
+    padding: 20px;
+    text-align: center;
+  }
+
+  body .container .card .box .content h2 {
+    position: absolute;
+    top: -10px;
+    right: 30px;
+    font-size: 8rem;
+    color: rgba(255, 255, 255, 0.1);
+  }
+
+  body .container .card .box .content h3 {
+    font-size: 1.8rem;
+    color: #fff;
+    z-index: 1;
+    transition: 0.5s;
+    margin-bottom: 15px;
+  }
+
+  body .container .card .box .content p {
+    font-size: 1rem;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.9);
+    z-index: 1;
+    transition: 0.5s;
+  }
+
+  body .container .card .box .content a {
+    position: relative;
+    display: inline-block;
+    padding: 8px 20px;
+    background: black;
+    border-radius: 5px;
+    text-decoration: none;
+    color: white;
+    margin-top: 20px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    transition: 0.5s;
+  }
+  body .container .card .box .content a:hover {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6);
+    background: #fff;
+    color: #000;
+  }
+
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
